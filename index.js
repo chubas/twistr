@@ -92,23 +92,8 @@ var buildGame = function(dict) {
 var game = buildGame(wordsByLength);
 console.log('WORDS:', JSON.stringify(game.words, null, 2));
 
-var printStatus = function(words, discovered) {
-  // _.forEach(words, function(wordsByLength, length) {
-    // wordsByLength.forEach(function(word) {
-    words.forEach(function(word) {
-
-      if(discovered.indexOf(word) >= 0) {
-        console.log(word);
-      } else {
-        console.log(word.replace(/\w/g, '_'));
-      }
-    });
-    // });
-  // });
-};
-
 // Formats it as a string to add to a blessed screen
-var printStatus2 = function(words, discovered) {
+var renderDiscovered = function(words, discovered) {
 
   return words.map(function(word) {
 
@@ -121,7 +106,6 @@ var printStatus2 = function(words, discovered) {
 };
 
 
-printStatus(game.words, game.discovered);
 
 var blessed = require('blessed');
 
@@ -141,7 +125,7 @@ var renderGuess = function(letters, letterbag) {
   content = content + '\n\n' +
     letterbag.map(function(l) {
       return l.used ?
-        '{yellow-bg} {/yellow-bg}' :
+        '{red-bg}{black-fg}·{/black-fg}{/red-bg}' :
         '{green-fg}' + l.letter  + '{/green-fg}';
     }).join(' ') +
     '\n\n';
@@ -164,10 +148,10 @@ var guessBox = blessed.box({
   },
   tags: true,
   content : renderGuess(buffer, letterbag),
-  width : 40,
-  height : 10,
+  width : 30,
+  height : 8,
   left: 'center',
-  top: 5,
+  top: 3,
   hoverEffects: {
     bg: 'green'
   }
@@ -175,11 +159,20 @@ var guessBox = blessed.box({
 
 var resultsBox = blessed.box({
   tags: true,
-  content: printStatus2(game.words, game.discovered),
+  content: renderDiscovered(game.words, game.discovered),
   top: 15,
   left: 'center',
   shrink: 'flex',
-  bg: 'yellow'
+  border : {
+    fg : 'blue',
+    type : 'line'
+  },
+  padding: {
+    top: 1,
+    bottom: 1,
+    left: 5,
+    right: 5
+  }
 });
 
 var messageBox = blessed.box({
@@ -214,7 +207,7 @@ screen.on('keypress', function(key, ch) {
     } else {
       messageBox.setContent('Wrong guess: ' + word);
     }
-    resultsBox.setContent(printStatus2(game.words, game.discovered));
+    resultsBox.setContent(renderDiscovered(game.words, game.discovered));
   } else if(/^[a-zA-Z]{1}$/.test(key)) {
     var available = _.find(letterbag, function(l) {
       return !l.used && l.letter === key;
@@ -232,7 +225,7 @@ screen.on('keypress', function(key, ch) {
   } else if(ch.name === 'tab') {
     shuffle(letterbag);
   } else if(key === '`') {
-    messageBox.setContent('SHHH. Words are: ', game.words.join(' '));
+    messageBox.setContent('SHHH. Words are: ' + game.words.join(' '));
   } else {
     // NOT A VALID KEY
     // console.log('PRESSED', key, ch);
@@ -246,30 +239,3 @@ screen.key(['escape', 'C-c'], function(ch, key) {
 });
 
 screen.render();
-
-// var rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout
-// });
-
-// rl.setPrompt('>>>');
-// rl.prompt();
-
-// rl.on('line', function(line) {
-//   line = line.trim();
-//   console.log('LINE: (' + line + ')');
-//   if(game.words.indexOf(line) >= 0) {
-//     game.discovered.push(line);
-//     console.log('YAY!', line);
-//     if(line.length === 6) {
-//       console.log('You are winner!');
-//     }
-//   } else {
-//     console.log('NOPE');
-//   }
-//   if(game.words.length === game.discovered.length) {
-//     console.log('You discovered all the words!');
-//   }
-//   printStatus(game.words, game.discovered);
-//   rl.prompt();
-// });
