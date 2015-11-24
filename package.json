@@ -1,0 +1,16 @@
+{
+  "name": "twistr",
+  "version": "0.0.1",
+  "description": "Swap letters. Discover the hidden word. Earn points. (Response to the GDLJS Monthly Challenge #1)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rubén Medellín",
+  "license": "MIT",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "readline": "^1.2.0",
+    "underscore": "^1.8.3"
+  }
+}
